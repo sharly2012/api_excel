@@ -8,7 +8,7 @@ import csv
 
 class BaseUtil:
     def __init__(self):
-        self.root_path = '/Users/admin/PycharmProjects/api002'
+        self.root_path = '/Users/admin/PycharmProjects/api_excel'
 
     def set_root_path(self, path):
         """设置项目的主path"""

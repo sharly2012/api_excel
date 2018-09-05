@@ -7,29 +7,29 @@ from util.logger import Logger
 logger = Logger('base_api').get_log()
 
 
-def send_requests(s, testdata):
+def send_requests(s, test_data):
     """封装requests请求"""
-    method = testdata["Method"]
-    url = testdata["Url"]
+    method = test_data["Method"]
+    url = test_data["Url"]
     try:
-        params = eval(testdata["Parameters"])
+        params = eval(test_data["Parameters"])
     except Exception as e:
         params = None
         logger.info(e)
     try:
-        headers = eval(testdata["Header"])
+        headers = eval(test_data["Header"])
         print("请求头部：%s" % headers)
     except Exception as e:
         headers = None
         logger.info(e)
-    data_type = testdata["Type"]
-    test_nub = testdata['Id']
+    data_type = test_data["Type"]
+    test_nub = test_data['Id']
     print("*******正在执行用例：-----  %s  ----**********" % test_nub)
     print("请求方式：%s, 请求url:%s" % (method, url))
     print("请求params：%s" % params)
 
     try:
-        body_data = eval(testdata["Body"])
+        body_data = eval(test_data["Body"])
     except Exception as e:
         body_data = {}
         logger.info(e)
@@ -56,8 +56,8 @@ def send_requests(s, testdata):
                       verify=verify
                       )
         print("Page Info：%s" % r.content.decode("utf-8"))
-        response['Id'] = testdata['Id']
-        response['rowNum'] = testdata['rowNum']
+        response['Id'] = test_data['Id']
+        response['rowNum'] = test_data['rowNum']
         response["StatusCode"] = str(r.status_code)
         response["text"] = r.content.decode("utf-8")
         response["Time"] = str(r.elapsed.total_seconds())
@@ -66,7 +66,7 @@ def send_requests(s, testdata):
         else:
             response["Error"] = ""
             response["Msg"] = ""
-        if testdata["CheckPoint"] in response["text"]:
+        if test_data["CheckPoint"] in response["text"]:
             response["Result"] = "pass"
             print("Test Result:   %s---->%s" % (test_nub, response["Result"]))
         else:
@@ -77,7 +77,7 @@ def send_requests(s, testdata):
         return response
 
 
-def write_result(result, filename="result.xlsx"):
+def write_result(result, filename):
     # return row_nub
     row_nub = result['rowNum']
     # write status code
