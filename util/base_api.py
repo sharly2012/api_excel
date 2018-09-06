@@ -55,11 +55,11 @@ def send_requests(s, test_data):
                       data=body,
                       verify=verify
                       )
-        print("Page Info：%s" % r.content.decode("utf-8"))
+        print("Page Info：%s" % r.content)
         response['Id'] = test_data['Id']
         response['rowNum'] = test_data['rowNum']
         response["StatusCode"] = str(r.status_code)
-        response["text"] = r.content.decode("utf-8")
+        response["text"] = r.content
         response["Time"] = str(r.elapsed.total_seconds())
         if response["StatusCode"] != "200":
             response["Error"] = response["text"]
