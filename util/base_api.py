@@ -8,7 +8,6 @@ logger = Logger(logger='base_api').get_log()
 
 
 def send_requests(s, test_data):
-    """封装requests请求"""
     method = test_data["Method"]
     url = test_data["Url"]
     try:
@@ -16,9 +15,10 @@ def send_requests(s, test_data):
     except Exception as e:
         params = None
         logger.info(e)
+    # 请求头部headers
     try:
         headers = eval(test_data["Header"])
-        print("请求头部：%s" % headers)
+        logger.info("Request Header：%s" % headers)
     except Exception as e:
         headers = None
         logger.info(e)
@@ -26,16 +26,17 @@ def send_requests(s, test_data):
     data_type = test_data["Type"]
 
     test_nub = test_data['Id']
-    print("*******正在执行用例：-----  %s  ----**********" % test_nub)
-    print("请求方式：%s, 请求url:%s" % (method, url))
-    print("请求params：%s" % params)
+    logger.info("*******Test Case ：-----  %s  ----**********" % test_nub)
+    logger.info("Request Method：%s, 请求url:%s" % (method, url))
+    logger.info("Request Params：%s" % params)
 
+    # post请求body内容
     try:
         body_data = eval(test_data["Body"])
     except Exception as e:
         body_data = {}
         logger.info(e)
-    # 判断传data数据还是json
+
     if data_type == "data":
         body = body_data
     elif data_type == "json":
@@ -43,10 +44,10 @@ def send_requests(s, test_data):
     else:
         body = body_data
     if method == "post":
-        print("post请求body类型为：%s ,body内容为：%s" % (data_type, body))
+        logger.info("body type is：%s , body content：%s" % (data_type, body))
 
     verify = False
-    res = {}
+    response = {}
 
     try:
         r = s.request(method=method,
@@ -56,35 +57,35 @@ def send_requests(s, test_data):
                       data=body,
                       verify=verify
                       )
-        print("Page Info：%s" % r.content)
-        res['id'] = test_data['Id']
-        res['rowNum'] = test_data['rowNum']
-        res["StatusCode"] = str(r.status_code)
-        res["text"] = r.content
-        res["Time"] = str(r.elapsed.total_seconds())
-        if res["StatusCode"] != "200":
-            res["Error"] = res["text"]
+        logger.info("Page Info：%s" % r.content)
+        response['Id'] = test_data['Id']
+        response['rowNum'] = test_data['rowNum']
+        response["StatusCode"] = str(r.status_code)
+        response["text"] = r.content.decode("utf-8")
+        response["Time"] = str(r.elapsed.total_seconds())
+        if response["StatusCode"] != "200":
+            response["Error"] = response["text"]
         else:
-            res["Error"] = ""
-        res["Msg"] = ""
-        if test_data["CheckPoint"] in res["text"]:
-            res["Result"] = "pass"
-            print("Test Result:   %s---->%s" % (test_nub, res["Result"]))
+            response["Error"] = ""
+            response["Msg"] = ""
+        if test_data["CheckPoint"] in response["text"]:
+            response["Result"] = "Pass"
+            logger.info("Test Result:   %s---->%s" % (test_nub, response["Result"]))
         else:
-            res["Result"] = "fail"
-        return res
+            response["Result"] = "Fail"
+        return response
     except Exception as msg:
-        res["Msg"] = str(msg)
-        return res
+        response["Msg"] = str(msg)
+        return response
 
 
-def write_result(result, filename="result.xlsx"):
+def write_result(result, filename):
     # Return row_nub
     row_nub = result['rowNum']
     # Write Result
     wt = WriteExcel(filename)
-    wt.write(row_nub, 8, result['StatusCode'])
-    wt.write(row_nub, 9, result['Time'])
-    wt.write(row_nub, 10, result['Error'])
-    wt.write(row_nub, 12, result['Result'])
-    wt.write(row_nub, 13, result['Msg'])
+    wt.write(row_nub, 8, result['StatusCode'])  # 写入返回状态码statuscode,第8列
+    wt.write(row_nub, 9, result['Time'])  # 耗时
+    wt.write(row_nub, 10, result['Error'])  # 状态码非200时的返回信息
+    wt.write(row_nub, 12, result['Result'])  # 测试结果 pass 还是fail
+    wt.write(row_nub, 13, result['Msg'])  # 抛异常

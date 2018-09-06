@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 import unittest
 import ddt
-import os
 import requests
 from util.baseutil import BaseUtil
 from util import base_api
