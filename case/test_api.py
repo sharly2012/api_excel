@@ -30,7 +30,7 @@ class TestAPI(unittest.TestCase):
     def test_api(self, data):
         res = base_api.send_requests(self.s, data)
 
-        base_api.write_result(res, filename=report_xlsx)
+        base_api.write_result(res, report_xlsx)
         # checkpoint
         check = data["CheckPoint"]
         print("checkpoint->：%s" % check)
