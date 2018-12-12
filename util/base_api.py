@@ -8,26 +8,26 @@ logger = Logger(logger='base_api').get_log()
 
 
 def send_requests(s, test_data):
-    method = test_data["Method"]
+    case_id = test_data['Id']
     url = test_data["Url"]
+    method = test_data["Method"]
+    logger.info("*******Test Case ：-----  %s  ----**********" % case_id)
+    logger.info("Request Method：%s, 请求url:%s" % (method, url))
+
     try:
-        params = eval(test_data["Parameters"])
+        params = test_data["Parameters"]
     except Exception as e:
         params = None
         logger.info(e)
     # 请求头部headers
     try:
-        headers = eval(test_data["Header"])
+        headers = test_data["Header"]
         logger.info("Request Header：%s" % headers)
     except Exception as e:
         headers = None
         logger.info(e)
     # post请求body类型
     data_type = test_data["Type"]
-
-    test_nub = test_data['Id']
-    logger.info("*******Test Case ：-----  %s  ----**********" % test_nub)
-    logger.info("Request Method：%s, 请求url:%s" % (method, url))
     logger.info("Request Params：%s" % params)
 
     # post请求body内容
@@ -70,18 +70,19 @@ def send_requests(s, test_data):
             response["Msg"] = ""
         if test_data["CheckPoint"] in response["text"]:
             response["Result"] = "Pass"
-            logger.info("Test Result:   %s---->%s" % (test_nub, response["Result"]))
+            logger.info("Test Result:   %s---->%s" % (case_id, response["Result"]))
         else:
             response["Result"] = "Fail"
         return response
     except Exception as msg:
-        response["Msg"] = str(msg)
+        response["Msg"] = msg
         return response
 
 
 def write_result(result, filename):
     # Return row_nub
     row_nub = result['rowNum']
+    logger.info(row_nub)
     # Write Result
     wt = WriteExcel(filename)
     wt.write(row_nub, 8, result['StatusCode'])  # 写入返回状态码statuscode,第8列
